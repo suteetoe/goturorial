@@ -4,6 +4,9 @@ import "fmt"
 
 func Execute() {
 	repo := NewStaticRepository()
+	h := NewHandler(repo)
+	s := h.Do(2)
+	fmt.Println(s)
 }
 
 type Language struct {
@@ -31,8 +34,11 @@ func (h *Handler) Do(id uint) string {
 	return fmt.Sprintf("%s language", lang.Name)
 }
 
-func NewStaticRepository() *Repository {
-
+func NewStaticRepository() Repository {
+	repo := &StaticRepo{
+		data: data,
+	}
+	return repo
 }
 
 var data = map[uint]Language{
@@ -40,4 +46,12 @@ var data = map[uint]Language{
 	2: {ID: 2, Name: "Java"},
 	3: {ID: 3, Name: "Python"},
 	4: {ID: 4, Name: "Rust"},
+}
+
+type StaticRepo struct {
+	data map[uint]Language
+}
+
+func (s StaticRepo) QueryLang(id uint) Language {
+	return s.data[id]
 }
