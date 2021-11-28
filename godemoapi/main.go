@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
@@ -28,6 +29,7 @@ func main() {
 	})
 	r.POST("/books", NewBook)
 	r.GET("/books", ListBook)
+	r.GET("/books/:id", GetBook)
 	r.Run()
 
 	// r := gin.Default()
@@ -52,6 +54,7 @@ func NewBook(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+		return
 	}
 
 	result := db.Create(&book)
@@ -59,6 +62,7 @@ func NewBook(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": result.Error.Error(),
 		})
+		return
 	}
 
 	c.Status(http.StatusCreated)
@@ -73,8 +77,32 @@ func ListBook(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": result.Error.Error(),
 		})
+		return
 	}
 
 	c.JSON(http.StatusOK, books)
 
+}
+
+func GetBook(c *gin.Context) {
+
+	id := c.Param("id")
+
+	n, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	var book Book
+	result := db.Find(&book, n)
+	if err = result.Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusOK, book)
 }
