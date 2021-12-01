@@ -97,11 +97,12 @@ func GetBook(c *gin.Context) {
 	}
 
 	var book Book
-	result := db.Find(&book, n)
+	result := db.First(&book, n)
 	if err = result.Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
+		return
 	}
 
 	c.JSON(http.StatusOK, book)
